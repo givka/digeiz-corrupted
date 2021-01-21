@@ -67,8 +67,8 @@ int main() {
   int previous_size = images.size();
   int index = 0;
 
-  auto image_is_alone = [hists, &index](const cv::Mat &image) {
-    auto get_good_hists = [index, hists](const cv::MatND &hist) {
+  auto image_is_alone = [&hists, &index](const cv::Mat &image) -> bool {
+    auto get_good_hists = [&hists, index](const cv::MatND &hist) -> bool {
       return cv::compareHist(hist, hists[index], cv::HISTCMP_CORREL) > 0.8;
     };
 
@@ -94,21 +94,17 @@ int main() {
 
   std::vector<ColorGray> ordored;
 
-  auto first = cg_images[0];
-  ordored.insert(ordored.begin(), first);
+  ordored.insert(ordored.begin(), cg_images[0]);
   cg_images.erase(cg_images.begin());
 
-  int min_index;
-  double min_dist;
-  std::tie(min_index, min_dist) = next_frame(cg_images, first.gray);
+  int top_index{}, bot_index{};
+  double top_dist{}, bot_dist{};
 
-  std::cout << min_index << ", " << min_dist << std::endl;
+  std::tie(top_index, top_dist) = next_frame(cg_images, ordored.front().gray);
 
-  ordored.insert(ordored.begin(), cg_images[min_index]);
-  cg_images.erase(cg_images.begin() + min_index);
+  ordored.insert(ordored.begin(), cg_images[top_index]);
+  cg_images.erase(cg_images.begin() + top_index);
 
-  int top_index, bot_index;
-  double top_dist, bot_dist;
   std::tie(top_index, top_dist) = next_frame(cg_images, ordored.front().gray);
   std::tie(bot_index, bot_dist) = next_frame(cg_images, ordored.back().gray);
 
@@ -173,7 +169,7 @@ std::tuple<int, double> next_frame(const std::vector<ColorGray> &cg_images,
   int min_index = -1;
 
   for (int index = 0; index < cg_images.size(); ++index) {
-    auto &new_gray = cg_images[index].gray;
+    const auto &new_gray = cg_images[index].gray;
 
     static auto winSize = cv::Size(15, 15);
     static int maxLevel = 2;
@@ -206,21 +202,3 @@ std::tuple<int, double> next_frame(const std::vector<ColorGray> &cg_images,
   }
   return std::make_tuple(min_index, min_dist);
 }
-
-//     message += f" last: {time.time()-now:.2f}s, total:
-//     {time.time()-start:.2f}"
-
-//     print(message)
-
-// # for image in ordered:
-// #     cv.imshow("adzd", cv.resize(image, (1920//4, 1080//4)))
-// #     cv.waitKey(0)
-
-// print(size)
-// fourcc = cv.VideoWriter_fourcc(*'MJPG')
-// out = cv.VideoWriter('ordered_video.mp4', fourcc, fps, size, True)
-// for color_image, gray_image in ordered:
-//     out.write(color_image)
-
-// out.release()
-// cv.destroyAllWindows()

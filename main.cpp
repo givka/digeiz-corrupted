@@ -80,11 +80,18 @@ int main() {
   images.erase(std::remove_if(images.begin(), images.end(), image_is_alone),
                images.end());
 
-  std::cout << "removed " << (previous_size - images.size()) << " images\n";
+  std::cout << "removed " << (previous_size - images.size())
+            << " images with histogram comparisons\n";
 
-  auto color_to_color_gray = [](const cv::Mat &image) {
+  constexpr int DIVIDOR = 20;
+
+  printf("resized (%d, %d) to (%d, %d)\n", width, height, width / DIVIDOR,
+         height / DIVIDOR);
+
+  auto color_to_color_gray = [=](const cv::Mat &image) {
     cv::Mat gray;
     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+    cv::resize(gray, gray, cv::Size(width / DIVIDOR, height / DIVIDOR));
     return ColorGray{image, gray};
   };
 
@@ -109,8 +116,6 @@ int main() {
   std::tie(bot_index, bot_dist) = next_frame(cg_images, ordored.back().gray);
 
   while (cg_images.size()) {
-    std::cout << "remaining: " << cg_images.size() << " images\n";
-
     if (top_dist < bot_dist) {
       ordored.insert(ordored.begin(), cg_images[top_index]);
       cg_images.erase(cg_images.begin() + top_index);
@@ -134,7 +139,12 @@ int main() {
             next_frame(cg_images, ordored.back().gray);
       }
     }
+    const int percentage = 100 * (float)ordored.size() / images.size();
+    std::cout << "\rcompute optical flow: " << percentage << "%" << std::flush;
   }
+
+  std::cout << '\n';
+
   /*
   for (const auto &i : ordored) {
     cv::imshow("dzdqd", i.color);
@@ -142,9 +152,11 @@ int main() {
   }
   */
 
+  auto filename = "../cpp_video.mp4";
   auto fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
   auto size = cv::Size(width, height);
-  auto out = cv::VideoWriter("../cpp_video.mp4", fourcc, fps, size);
+  auto out = cv::VideoWriter(filename, fourcc, fps, size);
+  std::cout << "writing file " << filename << " ..." << '\n';
   for (const auto &cg_image : ordored) {
     out.write(cg_image.color);
   }
@@ -156,8 +168,8 @@ int main() {
 
 std::tuple<int, double> next_frame(const std::vector<ColorGray> &cg_images,
                                    const cv::Mat &old_gray) {
-  static int maxCorners = 300;
-  static double qualityLevel = 0.2;
+  static int maxCorners = 50;
+  static double qualityLevel = 0.05;
   static double minDistance = 2;
   static int blockSize = 7;
 

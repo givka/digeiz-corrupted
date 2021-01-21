@@ -6,6 +6,10 @@ import numpy as np
 from cv2 import cv2 as cv
 from matplotlib import pyplot as plt
 
+correct_output = []
+with open("correct_output.in") as f:
+    correct_output = [int(i) for i in f.read().strip().split(",")]
+
 
 color_spaces = (
     ("RGB", cv.COLOR_BGR2RGB),
@@ -82,8 +86,12 @@ for index in range(len(images)):
 
 print("removed", len(remove_images), "images")
 
-cg_images = [(image, cv.cvtColor(image, cv.COLOR_BGR2GRAY))
-             for (image, hist) in good_images]
+DIVIDOR = 20
+cg_images = [(image, cv.resize(cv.cvtColor(image, cv.COLOR_BGR2GRAY),
+                               (size[0]//DIVIDOR, size[1]//DIVIDOR)), id_)
+             for (id_, (image, hist)) in enumerate(good_images)]
+
+print((size[0], size[1]), "resized to", (size[0]//DIVIDOR, size[1]//DIVIDOR))
 
 
 def find_min_frame(cg_images: list, old_gray):
@@ -91,7 +99,7 @@ def find_min_frame(cg_images: list, old_gray):
                      maxLevel=2,
                      criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
 
-    feature_params = dict(maxCorners=300, qualityLevel=0.2,
+    feature_params = dict(maxCorners=50, qualityLevel=0.05,
                           minDistance=2, blockSize=7)
 
     old_contours = cv.goodFeaturesToTrack(
@@ -129,6 +137,8 @@ del cg_images[0]
 ordered = deque()
 ordered.append(first_c_g_image)
 
+
+g_pos = "top"
 index, distance = find_min_frame(cg_images, first_c_g_image[1])
 
 ordered.appendleft(cg_images[index])
@@ -164,7 +174,6 @@ while len(cg_images):
         if len(cg_images):
             if top_index >= bot_index and top_index != 0:
                 top_index -= 1
-
             bot_index, bot_distance = find_min_frame(cg_images, ordered[-1][1])
 
     message += f" last: {time.time()-now:.2f}s, total: {time.time()-start:.2f}"
@@ -172,15 +181,17 @@ while len(cg_images):
     print(message)
 
 
-# for image in ordered:
+print([i[2] for i in ordered] == correct_output)
+# for image,gray,id_ in ordered:
 #     cv.imshow("adzd", cv.resize(image, (1920//4, 1080//4)))
 #     cv.waitKey(0)
 
-
-print(size)
+filename = "python_video.mp4"
 fourcc = cv.VideoWriter_fourcc(*'MJPG')
-out = cv.VideoWriter('ordered_video.mp4', fourcc, fps, size, True)
-for color_image, gray_image in ordered:
+out = cv.VideoWriter(filename, fourcc, fps, size, True)
+print(f"writing {filename} ...")
+
+for color_image, gray_image, id_ in ordered:
     out.write(color_image)
 
 out.release()

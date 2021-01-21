@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(digeiz-corrupted)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 
 find_package(OpenCV REQUIRED)
 

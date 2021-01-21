@@ -21,9 +21,9 @@ I first considered using Face detection, but actually, for this video, the face 
 
 I then used Features, Descriptors and Matchings to get the homography matrix between frames, which can give me the translation between frames, but it turns out it was costly and did not provide good result.
 
-I finally used optical flow. At first, I select a random frame, and I compute the mean distance of optical flow vectors between this frame and all the other frames. The minimum distance will give me the frame which is the closest.
+I finally used optical flow. At first, I select a random frame, and I compute the mean distance of optical flow vectors between this frame and all the other frames. The frame with the minimum distance is the closest.
 
-I then put these two frames in a vector and remove them from the frames to check.
+I put these two frames in a stack and remove them from the frames to check.
 
 I repeat this for the top of the stack and the bottom of the stack.
 I check the minimum distance between the two and place the next frame in the stack accordingly (on the top if the minimum distance is from the top, or on the bottom)
@@ -43,7 +43,7 @@ find_min_frame(2) | find_min_frame(3) ->  [2][1][0][3][4]
 After playing with the parameters, I manage to downsample the input images for the computation of the optical flow by 20, which resizes frames from (1920, 1080) to (96, 54). This value is specific for this video.
 
 ## Using another corrupted video
-If the algorithm does not work on another video.
+If the algorithm does not work on another video:
 - Find all the corrupted frames:
   - change value of `MIN_HIST_CORREL=0.8  float[0,1]`
   - change value of `MIN_HIST_SIMILAR=0.5 float[0,1]`
@@ -83,3 +83,15 @@ make
 ./digeiz-corrupted
 ```
 This will write `cpp_video.mp4` to the main directory.
+
+### Video format
+If there is an error while writing the ordored frames video file, it may come from:
+```py
+filename = "python_video.mp4"
+fourcc = cv.VideoWriter_fourcc(*'MJPG')
+```
+```cpp
+auto filename = "../cpp_video.mp4";
+auto fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
+```
+Change the extension and the fourcc to something that works on your computer.

@@ -1,10 +1,16 @@
 import math
 import time
-from collections import deque, namedtuple
+from collections import deque
 
 import numpy as np
 from cv2 import cv2 as cv
 from matplotlib import pyplot as plt
+
+
+MIN_HIST_CORREL = 0.8
+MIN_HIST_SIMILAR = 0.5
+
+DOWNSAMPLE = 20
 
 correct_output = []
 with open("correct_output.in") as f:
@@ -17,14 +23,14 @@ color_spaces = (
     ("XYZ", cv.COLOR_BGR2XYZ),
     ("YUV", cv.COLOR_BGR2YUV),  # best results
     ("YCR_CB", cv.COLOR_BGR2YCR_CB),
-    # ("LUV", cv.COLOR_BGR2LUV), # not working
-    # ("LAB", cv.COLOR_BGR2LAB), # not working
+    ("LUV", cv.COLOR_BGR2LUV),
+    ("LAB", cv.COLOR_BGR2LAB),
 )
 
 methods = (
     ("CORREL", cv.HISTCMP_CORREL),
     ("BHATTACHARYYA", cv.HISTCMP_BHATTACHARYYA),
-    # ("CHISQR", cv.HISTCMP_CHISQR), # not working
+    ("CHISQR", cv.HISTCMP_CHISQR), 
     ("CHISQR_ALT", cv.HISTCMP_CHISQR_ALT),
     ("HELLINGER", cv.HISTCMP_HELLINGER),
     ("INTERSECT", cv.HISTCMP_INTERSECT),
@@ -65,9 +71,7 @@ color_images = [cv.cvtColor(image, color_space_val) for image in images]
 hists = [cv.calcHist([image], [0, 1, 2], None, [8, 8, 8], [0, 256, 0, 256, 0, 256])
          for image in color_images]
 
-remove_images = []
-good_images = []
-ImageHist = namedtuple('ImageHist', ['image', 'hist'])
+remove_indices = []
 
 for index in range(len(images)):
     dists = [cv.compareHist(hists[index], hist, method_val)
@@ -75,23 +79,24 @@ for index in range(len(images)):
 
     dists = sorted(dists, key=lambda distance: distance)
 
-    # TODO: check this value 0.8 ??
-    val = len([dist for dist in dists if dist > 0.8])/len(dists)
-    # there is less than 50% of images that have a correlation of 0.5 with this image,
+    val = len([dist for dist in dists if dist > MIN_HIST_CORREL])/len(dists)
+    # there is less than 50% of images that have a correlation of 0.8 with this image,
     # so we assume that this image is fake
-    if val < 0.5:
-        remove_images.append(images[index])
-    else:
-        good_images.append(ImageHist(images[index], hists[index]))
+    if val < MIN_HIST_SIMILAR:
+        remove_indices.append(index)
 
-print("removed", len(remove_images), "images")
+print("removed", len(remove_indices), "images")
 
-DIVIDOR = 20
+images = [images[index]
+          for index in range(len(images)) if index not in remove_indices]
+print("removed", len(remove_indices), "images")
+
 cg_images = [(image, cv.resize(cv.cvtColor(image, cv.COLOR_BGR2GRAY),
-                               (size[0]//DIVIDOR, size[1]//DIVIDOR)), id_)
-             for (id_, (image, hist)) in enumerate(good_images)]
+                               (size[0]//DOWNSAMPLE, size[1]//DOWNSAMPLE)), index)
+             for (index, image) in enumerate(images)]
 
-print((size[0], size[1]), "resized to", (size[0]//DIVIDOR, size[1]//DIVIDOR))
+print((size[0], size[1]), "resized to",
+      (size[0]//DOWNSAMPLE, size[1]//DOWNSAMPLE))
 
 
 def find_min_frame(cg_images: list, old_gray):
@@ -137,8 +142,6 @@ del cg_images[0]
 ordered = deque()
 ordered.append(first_c_g_image)
 
-
-g_pos = "top"
 index, distance = find_min_frame(cg_images, first_c_g_image[1])
 
 ordered.appendleft(cg_images[index])
@@ -180,8 +183,9 @@ while len(cg_images):
 
     print(message)
 
-
+# check if the frames are correctly ordored
 print([i[2] for i in ordered] == correct_output)
+
 # for image,gray,id_ in ordered:
 #     cv.imshow("adzd", cv.resize(image, (1920//4, 1080//4)))
 #     cv.waitKey(0)

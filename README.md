@@ -14,10 +14,10 @@ As for the method of comparison, I selected after some tries the Correlation Com
 In order to effectively find the corrupted frames, we want to find frames that are similar and frames that are unique.
 I implemented this by comparing each histogram with all the other histograms, and counting hom many of them have a histogram correlation distance (from 0.0 [no correlation] to 1.0 [same frame]) that is more than 0.8. 
 
-This will then give me a percentage of how many frame are simal to this frame. If the percentage of frames similar to this frame is more than 50%, the frame is considered not corrupted.
+This will then give me a percentage of how many frame are similar to this frame. If the percentage of frames similar to this frame is more than 50%, the frame is not considered corrupted.
 
 ### Find the correct flow
-I first considered using Face detection, but actually, for this video, the face  move slower than the camera, which makes tracking difficult.
+I first considered using Face detection, but actually, for this video, the face  moves slower than the camera, which makes tracking difficult.
 
 I then used Features, Descriptors and Matchings to get the homography matrix between frames, which can give me the translation between frames, but it turns out it was costly and did not provide good result.
 
@@ -30,7 +30,7 @@ I check the minimum distance between the two and place the next frame in the sta
 
 I repeat this while there are still some frames to check.
 
-The stack will be filled with the reordored frames.
+The stack will be filled with the reordered frames.
 
 For example:
 ```cpp
@@ -40,7 +40,7 @@ find_min_frame(1) | find_min_frame(0) ->  [2][1][0]
 find_min_frame(2) | find_min_frame(0) ->  [2][1][0][3] 
 find_min_frame(2) | find_min_frame(3) ->  [2][1][0][3][4]
 ```
-After playing with the parameters, I manage to downsample the input images for the computation of the optical flow by 20, which resizes frames from (1920, 1080) to (96, 54). This value is specific for this video.
+After playing with the parameters, I manage to down sample the input images for the computation of the optical flow by 20, which resizes frames from (1920, 1080) to (96, 54). This value is specific for this video.
 
 ## Using another corrupted video
 If the algorithm does not work on another video:
@@ -88,7 +88,7 @@ make
 This will write `cpp_video.mp4` to the main directory.
 
 ### Video format
-If there is an error while writing the ordored frames video file, it may come from:
+If there is an error while writing the ordered frames video file, it may come from:
 ```py
 filename = "python_video.mp4"
 fourcc = cv.VideoWriter_fourcc(*'MJPG')
@@ -100,4 +100,4 @@ auto fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
 Change the extension and the fourcc to something that works on your computer.
 
 ## Ideas
-- pass global variables values by argument
+- pass global variable values by argument

@@ -45,10 +45,13 @@ After playing with the parameters, I manage to downsample the input images for t
 ## Using another corrupted video
 If the algorithm does not work on another video:
 - Find all the corrupted frames:
-  - change value of `MIN_HIST_CORREL=0.8  float[0,1]`
-  - change value of `MIN_HIST_SIMILAR=0.5 float[0,1]`
+  - change value of `MIN_HIST_CORREL = 0.8`  (`float[0,1]`)
+  - change value of `MIN_HIST_SIMILAR = 0.5` (`float[0,1]`)
 - Find the correct flow:
-  - change value of `DOWNSAMPLE=20 int[1,50]` (to 1 for example)
+  - change value of `DOWNSAMPLE = 20` (`int[1,50]`)
+    > Setting this to `1` will disable rescaling.
+  - change value of `REVERSED = false` (`bool`)
+    > The algorithm can not determine if the firsts two frames that will be added are in the right order. This is why this parameter is needed.
 
 ## Requirements
 - Python 3 (3.8)
@@ -95,3 +98,6 @@ auto filename = "../cpp_video.mp4";
 auto fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
 ```
 Change the extension and the fourcc to something that works on your computer.
+
+## Ideas
+- pass global variables values by argument

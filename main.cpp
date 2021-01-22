@@ -19,6 +19,7 @@ constexpr float MIN_HIST_SIMILAR = 0.5;
 
 // Optical flow
 constexpr int DOWNSAMPLE = 20;
+constexpr bool REVERSED = false;
 
 // helper struct
 struct ColorGray {
@@ -27,7 +28,7 @@ struct ColorGray {
 };
 
 std::tuple<int, float> next_frame(const std::vector<ColorGray> &cg_images,
-                                   const cv::Mat &old_gray);
+                                  const cv::Mat &old_gray);
 
 int main() {
 
@@ -180,6 +181,10 @@ int main() {
     cv::waitKey(0);
   }
   */
+
+  if (REVERSED) {
+    std::reverse(ordored.begin(), ordored.end());
+  }
 
   // write video
   auto filename = "../cpp_video.mp4";

@@ -11,10 +11,7 @@ MIN_HIST_CORREL = 0.8
 MIN_HIST_SIMILAR = 0.5
 
 DOWNSAMPLE = 20
-
-correct_output = []
-with open("correct_output.in") as f:
-    correct_output = [int(i) for i in f.read().strip().split(",")]
+REVERSED = False
 
 
 color_spaces = (
@@ -30,7 +27,7 @@ color_spaces = (
 methods = (
     ("CORREL", cv.HISTCMP_CORREL),
     ("BHATTACHARYYA", cv.HISTCMP_BHATTACHARYYA),
-    ("CHISQR", cv.HISTCMP_CHISQR), 
+    ("CHISQR", cv.HISTCMP_CHISQR),
     ("CHISQR_ALT", cv.HISTCMP_CHISQR_ALT),
     ("HELLINGER", cv.HISTCMP_HELLINGER),
     ("INTERSECT", cv.HISTCMP_INTERSECT),
@@ -183,12 +180,19 @@ while len(cg_images):
 
     print(message)
 
+correct_output = []
+with open("correct_output.in") as f:
+    correct_output = [int(i) for i in f.read().strip().split(",")]
+
 # check if the frames are correctly ordored
 print([i[2] for i in ordered] == correct_output)
 
 # for image,gray,id_ in ordered:
 #     cv.imshow("adzd", cv.resize(image, (1920//4, 1080//4)))
 #     cv.waitKey(0)
+
+if REVERSED:
+    ordered.reverse()
 
 filename = "python_video.mp4"
 fourcc = cv.VideoWriter_fourcc(*'MJPG')

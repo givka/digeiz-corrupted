@@ -159,7 +159,10 @@ while len(cg_images):
         message += f"top: cg_images {len(cg_images)} left"
 
         if len(cg_images):
-            if bot_index >= top_index and bot_index != 0:
+            if bot_index == top_index:
+                bot_index, bot_distance = find_min_frame(
+                    cg_images, ordered[-1][1])
+            elif bot_index > top_index and bot_index != 0:
                 bot_index -= 1
 
             top_index, top_distance = find_min_frame(
@@ -172,8 +175,12 @@ while len(cg_images):
         message += f"bot: cg_images {len(cg_images)} left"
 
         if len(cg_images):
-            if top_index >= bot_index and top_index != 0:
+            if top_index == bot_index:
+                top_index, top_distance = find_min_frame(
+                    cg_images, ordered[+0][1])
+            elif top_index > bot_index and top_index != 0:
                 top_index -= 1
+
             bot_index, bot_distance = find_min_frame(cg_images, ordered[-1][1])
 
     message += f" last: {time.time()-now:.2f}s, total: {time.time()-start:.2f}"

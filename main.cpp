@@ -18,7 +18,7 @@ constexpr float MIN_HIST_CORREL = 0.8;
 constexpr float MIN_HIST_SIMILAR = 0.5;
 
 // Optical flow
-constexpr int DOWNSAMPLE = 20;
+constexpr int DOWNSAMPLE = 1;
 constexpr bool REVERSED = false;
 
 // helper struct
@@ -147,7 +147,13 @@ int main() {
       // only the one who goes to the stack, we have to check if
       // the index of the other overflows after the erase.
       if (cg_images.size()) {
-        if (bot_index >= top_index && bot_index != 0) {
+        // unless both top and bot have the same min frame index
+        if (bot_index == top_index) {
+          std::tie(bot_index, bot_dist) =
+              next_frame(cg_images, ordored.back().gray);
+          // we have to check if the index of the other side of the stack
+          // overflows after the erase.
+        } else if (bot_index > top_index && bot_index != 0) {
           bot_index -= 1;
         }
         std::tie(top_index, top_dist) =
@@ -158,11 +164,16 @@ int main() {
       ordored.push_back(cg_images[bot_index]);
       cg_images.erase(cg_images.begin() + bot_index);
 
-      // we do not need to compute each time the top and the bottom,
-      // only the one who goes to the stack, we have to check if
-      // the index of the other overflows after the erase.
+      // we do not need to compute each time the top and the bottom, only the
+      // one who goes to the stack
       if (cg_images.size()) {
-        if (top_index >= bot_index && top_index != 0) {
+        // unless both top and bot have the same min frame index
+        if (top_index == bot_index) {
+          std::tie(top_index, top_dist) =
+              next_frame(cg_images, ordored.front().gray);
+          // we have to check if the index of the other side of the stack
+          // overflows after the erase.
+        } else if (top_index > bot_index && top_index != 0) {
           top_index -= 1;
         }
         std::tie(bot_index, bot_dist) =

@@ -96,11 +96,11 @@ This will write `cpp_video.mp4` to the main directory.
 ### Video format
 If there is an error while writing the ordered frames video file, it may come from:
 ```py
-filename = "python_video.mp4"
+OUTPUT_FILENAME = "./python_order_video.mp4"
 fourcc = cv.VideoWriter_fourcc(*'MJPG')
 ```
 ```cpp
-auto filename = "../cpp_video.mp4";
+constexpr auto OUTPUT_FILENAME = "../cpp_order_video.mp4";
 auto fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
 ```
 Change the extension and the fourcc to something that works on your computer.

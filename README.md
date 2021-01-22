@@ -17,7 +17,9 @@ I implemented this by comparing each histogram with all the other histograms, an
 This will then give me a percentage of how many frame are similar to this frame. If the percentage of frames similar to this frame is more than 50%, the frame is not considered corrupted.
 
 ### Find the correct flow
-I first considered using Face detection, but actually, for this video, the face  moves slower than the camera, which makes tracking difficult.
+I first considered using histogram comparison and a stack. It almost worked except for a few frames. This technique is not robust enough for complicated datasets.
+
+I did Face detection, but actually, for this video, the face  moves slower than the camera, which makes tracking difficult, and not every video has faces on it.
 
 I then used Features, Descriptors and Matchings to get the homography matrix between frames, which can give me the translation between frames, but it turns out it was costly and did not provide good result.
 

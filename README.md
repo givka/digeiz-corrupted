@@ -43,6 +43,10 @@ find_min_frame(2) | find_min_frame(3) ->  [2][1][0][3][4]
 After playing with the parameters, I manage to down sample the input images for the computation of the optical flow by 20, which resizes frames from (1920, 1080) to (96, 54). This value is specific for this video.
 
 ## Using another corrupted video
+- Change the values of:
+  - `INPUT_FILENAME`
+  - `OUTPUT_FILENAME`
+
 If the algorithm does not work on another video:
 - Find all the corrupted frames:
   - change value of `MIN_HIST_CORREL = 0.8`  (`float[0,1]`)
@@ -101,3 +105,4 @@ Change the extension and the fourcc to something that works on your computer.
 
 ## Ideas
 - pass global variable values by argument
+- instead of using a stack to store top and bot frames, store them in two seperate vectors and concat them at the end

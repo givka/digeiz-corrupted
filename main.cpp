@@ -12,13 +12,16 @@
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/videoio.hpp>
 
+constexpr auto INPUT_FILENAME = "../corrupted_video.mp4";
+constexpr auto OUTPUT_FILENAME = "../cpp_order_video.mp4";
+
 // Tweak these for another video
 // Corrupted frames
 constexpr float MIN_HIST_CORREL = 0.8;
 constexpr float MIN_HIST_SIMILAR = 0.5;
 
 // Optical flow
-constexpr int DOWNSAMPLE = 1;
+constexpr int DOWNSAMPLE = 20;
 constexpr bool REVERSED = false;
 
 // helper struct
@@ -31,8 +34,8 @@ std::tuple<int, float> next_frame(const std::vector<ColorGray> &cg_images,
                                   const cv::Mat &old_gray);
 
 int main() {
-
-  cv::VideoCapture cap = cv::VideoCapture("../corrupted_video.mp4");
+  std::cout << "reading file " << INPUT_FILENAME << '\n';
+  cv::VideoCapture cap = cv::VideoCapture(INPUT_FILENAME);
 
   if (!cap.isOpened()) {
     printf("Cannot open the video file.\n");
@@ -198,11 +201,10 @@ int main() {
   }
 
   // write video
-  auto filename = "../cpp_video.mp4";
+  std::cout << "writing file " << OUTPUT_FILENAME << '\n';
   auto fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
   auto size = cv::Size(width, height);
-  auto out = cv::VideoWriter(filename, fourcc, fps, size);
-  std::cout << "writing file " << filename << " ..." << '\n';
+  auto out = cv::VideoWriter(OUTPUT_FILENAME, fourcc, fps, size);
   for (const auto &cg_image : ordored) {
     out.write(cg_image.color);
   }

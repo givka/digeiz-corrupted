@@ -6,6 +6,8 @@ import numpy as np
 from cv2 import cv2 as cv
 from matplotlib import pyplot as plt
 
+INPUT_FILENAME = "./corrupted_video.mp4"
+OUTPUT_FILENAME = "./python_order_video.mp4"
 
 MIN_HIST_CORREL = 0.8
 MIN_HIST_SIMILAR = 0.5
@@ -35,7 +37,8 @@ methods = (
 )
 
 start = time.time()
-cap = cv.VideoCapture('corrupted_video.mp4')
+print(f"reading file {INPUT_FILENAME}")
+cap = cv.VideoCapture(INPUT_FILENAME)
 images = []
 hists = []
 
@@ -201,10 +204,9 @@ print([i[2] for i in ordered] == correct_output)
 if REVERSED:
     ordered.reverse()
 
-filename = "python_video.mp4"
+print(f"writing file {OUTPUT_FILENAME}")
 fourcc = cv.VideoWriter_fourcc(*'MJPG')
-out = cv.VideoWriter(filename, fourcc, fps, size, True)
-print(f"writing {filename} ...")
+out = cv.VideoWriter(OUTPUT_FILENAME, fourcc, fps, size, True)
 
 for color_image, gray_image, id_ in ordered:
     out.write(color_image)

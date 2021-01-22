@@ -402,62 +402,61 @@ cv.destroyAllWindows()
 #     plt.imshow(cv.resize(image, (50, 50)))
 #     plt.axis("off")
 
+# def find_by_face(images_hists):
+#     face_cascade = cv.CascadeClassifier(
+#         'haarcascade_frontalface_default.xml')
+#     lol = []
+#     for image, hist in images_hists:
+#         gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
-def find_by_face(images_hists):
-    face_cascade = cv.CascadeClassifier(
-        'haarcascade_frontalface_default.xml')
-    lol = []
-    for image, hist in images_hists:
-        gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+#         faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+#         face = max(faces, key=lambda x: x[2]*x[3])
 
-        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-        face = max(faces, key=lambda x: x[2]*x[3])
+#         x, y, w, h = face
+#         cv.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
-        x, y, w, h = face
-        cv.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
+#         lol.append((image, x+w/2))
 
-        lol.append((image, x+w/2))
-
-    for image, x in sorted(lol, key=lambda x: x[1]):
-        cv.imshow('image', cv.resize(image, (1920//4, 1080//4)))
-        cv.waitKey(0)
+#     for image, x in sorted(lol, key=lambda x: x[1]):
+#         cv.imshow('image', cv.resize(image, (1920//4, 1080//4)))
+#         cv.waitKey(0)
 
 
-def optical_flow():
+# def optical_flow():
 
-    # params for ShiTomasi corner detection
-    feature_params = dict(maxCorners=100,
-                          qualityLevel=0.3,
-                          minDistance=7,
-                          blockSize=7)
-    # Parameters for lucas kanade optical flow
-    lk_params = dict(winSize=(15, 15),
-                     maxLevel=2,
-                     criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+#     # params for ShiTomasi corner detection
+#     feature_params = dict(maxCorners=100,
+#                           qualityLevel=0.3,
+#                           minDistance=7,
+#                           blockSize=7)
+#     # Parameters for lucas kanade optical flow
+#     lk_params = dict(winSize=(15, 15),
+#                      maxLevel=2,
+#                      criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
 
-    prev_ = cv.cvtColor(images[0], cv.COLOR_BGR2GRAY)
+#     prev_ = cv.cvtColor(images[0], cv.COLOR_BGR2GRAY)
 
-    for i in range(1, len(images)):
-        next_ = cv.cvtColor(images[i], cv.COLOR_BGR2GRAY)
+#     for i in range(1, len(images)):
+#         next_ = cv.cvtColor(images[i], cv.COLOR_BGR2GRAY)
 
-        flow = cv.calcOpticalFlowFarneback(
-            prev_, next_, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+#         flow = cv.calcOpticalFlowFarneback(
+#             prev_, next_, None, 0.5, 3, 15, 3, 5, 1.2, 0)
 
-        mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
+#         mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
 
-        hsv = np.zeros_like(images[0])
-        hsv[..., 1] = 255
-        hsv[..., 0] = ang*180/np.pi/2
-        hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
-        bgr = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
-        cv.imshow('frame2', bgr)
+#         hsv = np.zeros_like(images[0])
+#         hsv[..., 1] = 255
+#         hsv[..., 0] = ang*180/np.pi/2
+#         hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
+#         bgr = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
+#         cv.imshow('frame2', bgr)
 
-        # # Change here
-        # horz = cv.normalize(flow[..., 0], None, 0, 255, cv.NORM_MINMAX)
-        # vert = cv.normalize(flow[..., 1], None, 0, 255, cv.NORM_MINMAX)
-        # horz = horz.astype('uint8')
-        # vert = vert.astype('uint8')
+#         # # Change here
+#         # horz = cv.normalize(flow[..., 0], None, 0, 255, cv.NORM_MINMAX)
+#         # vert = cv.normalize(flow[..., 1], None, 0, 255, cv.NORM_MINMAX)
+#         # horz = horz.astype('uint8')
+#         # vert = vert.astype('uint8')
 
-        # cv.imshow('Horizontal Component', horz)
-        # cv.imshow('Vertical Component', vert)
-        cv.waitKey(0)
+#         # cv.imshow('Horizontal Component', horz)
+#         # cv.imshow('Vertical Component', vert)
+#         cv.waitKey(0)
